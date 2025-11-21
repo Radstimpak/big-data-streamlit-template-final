@@ -19,11 +19,11 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
 
       # internal listener for other containers
-      KAFKA_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://kafka:9093
 
       # advertised addresses
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093
-
+      
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -37,3 +37,18 @@ services:
 
 volumes:
   mongo_data:
+
+streamlit-app:
+    build:
+      context: .
+      dockerfile: docker.yml  # Based on your file list
+    depends_on:
+      - kafka
+      - mongodb
+    ports:
+      - "8501:8501" # This is for local mapping
+    environment:
+      # This variable is critical so your Python code knows where Kafka is
+      BOOTSTRAP_SERVERS: kafka:9092 
+    # BELOW IS THE FIX FOR RAILWAY (Item 1):
+    command: sh -c "streamlit run app.py --server.port=$PORT --server.address=0.0.0.0"
