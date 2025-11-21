@@ -89,7 +89,7 @@ def consume_kafka_data(broker, topic, max_messages=50, timeout_sec=5):
     try:
         consumer = KafkaConsumer(
             topic,
-            bootstrap_servers=[broker],
+            bootstrap_servers = ['kafka:9092'],
             auto_offset_reset="earliest",
             enable_auto_commit=False,
             group_id=None,  # new consumer each call
